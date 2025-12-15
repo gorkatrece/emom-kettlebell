@@ -1,19 +1,19 @@
 {
   "name": "Kettlebell EMOM 30",
   "short_name": "EMOM 30",
-  "start_url": "index.html",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#111111",
+  "background_color": "#1e272e",
   "theme_color": "#2ed573",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "./icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
