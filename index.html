@@ -1,199 +1,216 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-<link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="EMOM Kettlebell">
-
-<link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kettlebell EMOM 30</title>
+<title>EMOM Kettlebell 30 Min</title>
 
 <style>
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-}
-</script>
-body {
-    margin: 0;
-    background: #111;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+:root {
+    --primary:#ff4757;
+    --bg:#1e272e;
+    --card:#2f3640;
+    --text:#f1f2f6;
+    --accent:#2ed573;
 }
 
-.container {
-    max-width: 420px;
-    margin: auto;
-    padding: 20px;
-    text-align: center;
+body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+    background:var(--bg);
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
 }
 
-h1 {
-    color: #2ed573;
+.container{
+    width:100%;
+    max-width:480px;
+    padding:15px;
 }
 
-/* 🔒 VIDEO BLOQUEADO (CLAVE) */
-video {
-    width: 100%;
-    max-height: 220px;
-    object-fit: cover;
-    border-radius: 14px;
-    background: black;
-
-    pointer-events: none; /* 🚨 CLAVE ABSOLUTA */
+/* VIDEO */
+.video-box{
+    width:100%;
+    background:black;
+    border-radius:14px;
+    overflow:hidden;
 }
 
-.exercise {
-    font-size: 1.5rem;
-    margin-top: 10px;
+video{
+    width:100%;
+    height:240px;
+    object-fit:cover;
 }
 
-.next {
-    font-size: 0.9rem;
-    opacity: 0.7;
+/* INFO */
+.exercise-card{
+    background:var(--card);
+    margin-top:12px;
+    padding:15px;
+    border-radius:16px;
 }
 
-.timer {
-    font-size: 4rem;
-    margin: 10px 0;
+.exercise-title{
+    font-size:1.3rem;
+    color:var(--accent);
+    margin:0;
 }
 
-button {
-    padding: 14px 24px;
-    border-radius: 30px;
-    border: none;
-    font-size: 1rem;
-    font-weight: bold;
-    margin: 5px;
+.reps{
+    font-size:1.1rem;
+    margin:6px 0;
+    color:#feca57;
 }
 
-.start { background: #2ed573; }
-.pause { background: #f1c40f; }
-.reset { background: #ff4757; color: white; }
+.exercise-desc{
+    font-size:0.9rem;
+    opacity:.85;
+}
+
+/* TIMER */
+.timer{
+    text-align:center;
+    font-size:4rem;
+    margin:15px 0;
+}
+
+/* CONTROLS */
+.controls{
+    display:flex;
+    gap:10px;
+}
+
+button{
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:30px;
+    font-weight:bold;
+    font-size:0.9rem;
+}
+
+.start{background:var(--accent);}
+.pause{background:#f1c40f;}
+.reset{background:var(--primary); color:white;}
+.skip{background:#57606f; color:white;}
+
+.next{
+    margin-top:10px;
+    font-size:.8rem;
+    opacity:.7;
+    text-align:center;
+}
 </style>
 </head>
 
 <body>
-
 <div class="container">
-    <h1>EMOM 30'</h1>
 
-    <video
-        id="video"
-        playsinline
-        webkit-playsinline
-        loop
-        preload="auto"
-        disablePictureInPicture
-        controlslist="nodownload nofullscreen noremoteplayback">
-    </video>
+<div class="video-box">
+    <video id="video" playsinline preload="auto"></video>
+</div>
 
-    <div class="exercise" id="exercise">Preparado</div>
-    <div class="next">Siguiente: <span id="next">-</span></div>
-    <div class="timer" id="timer">01:00</div>
+<div class="exercise-card">
+    <h2 class="exercise-title" id="exName">Preparado</h2>
+    <div class="reps" id="reps">—</div>
+    <div class="exercise-desc" id="exDesc"></div>
+</div>
 
-    <button class="start" onclick="start()">Iniciar</button>
-    <button class="pause" onclick="pause()">Pausa</button>
+<div class="timer" id="timer">01:00</div>
+
+<div class="controls">
+    <button class="start" onclick="start()">Start</button>
+    <button class="pause" onclick="pause()">Pause</button>
     <button class="reset" onclick="reset()">Reset</button>
+    <button class="skip" onclick="skip()">Skip ⏭</button>
+</div>
+
+<div class="next">Siguiente: <span id="nextEx">-</span></div>
+
 </div>
 
 <script>
 const exercises = [
-    { name: "Russian Swing", file: "russian_swing.mp4" },
-    { name: "Alt Bent Rows", file: "alt_bent_rows.mp4" },
-    { name: "Goblet Lunges", file: "goblet_lunges.mp4" },
-    { name: "Goblet Press", file: "goblet_press.mp4" },
-    { name: "Sumo High Pulls", file: "sumo_high_pulls.mp4" },
-    { name: "Alt Swings", file: "alt_swings.mp4" },
-    { name: "Halos", file: "halos.mp4" },
-    { name: "American Swings", file: "american_swings.mp4" },
-    { name: "Alt High Pulls", file: "alt_high_pulls.mp4" }
+ {name:"Russian Swing", reps:"20 reps", desc:"Swing ruso hasta el pecho.", video:"videos/russian_swing.mp4"},
+ {name:"Alt Bent Rows", reps:"16 reps", desc:"Remo alterno.", video:"videos/alt_rows.mp4"},
+ {name:"Goblet Lunges", reps:"20 reps", desc:"Zancadas con kettlebell.", video:"videos/goblet_lunges.mp4"},
+ {name:"Goblet Press", reps:"16 reps", desc:"Press desde goblet.", video:"videos/goblet_press.mp4"},
+ {name:"Sumo High Pulls", reps:"20 reps", desc:"Tirón alto sumo.", video:"videos/sumo_high_pull.mp4"},
+ {name:"Alt Swings", reps:"20 reps", desc:"Swing alterno.", video:"videos/alt_swings.mp4"},
+ {name:"Halos", reps:"10+10", desc:"Halos alrededor de la cabeza.", video:"videos/halos.mp4"},
+ {name:"American Swings", reps:"20 reps", desc:"Swing sobre la cabeza.", video:"videos/american_swings.mp4"},
+ {name:"Alt High Pulls", reps:"16 reps", desc:"High pull alterno.", video:"videos/alt_high_pull.mp4"},
+ {name:"Descanso", reps:"Descanso", desc:"Respira y prepárate.", video:"videos/rest.mp4"}
 ];
 
-const restVideo = "rest.mp4";
-
-let minute = 1;
+let minute = 0;
 let seconds = 60;
 let interval = null;
-let running = false;
 
 const video = document.getElementById("video");
-const exerciseEl = document.getElementById("exercise");
-const nextEl = document.getElementById("next");
-const timerEl = document.getElementById("timer");
+const exName = document.getElementById("exName");
+const reps = document.getElementById("reps");
+const exDesc = document.getElementById("exDesc");
+const timer = document.getElementById("timer");
+const nextEx = document.getElementById("nextEx");
 
-function loadMinute() {
-    const blockMinute = ((minute - 1) % 10) + 1;
+function loadExercise(){
+    const idx = minute % exercises.length;
+    const ex = exercises[idx];
+    const next = exercises[(idx+1)%exercises.length];
 
-    if (blockMinute === 10) {
-        exerciseEl.textContent = "DESCANSO";
-        video.src = restVideo;
-        nextEl.textContent = exercises[0].name;
-    } else {
-        const ex = exercises[blockMinute - 1];
-        exerciseEl.textContent = ex.name;
-        video.src = ex.file;
-        nextEl.textContent = blockMinute === 9 ? "DESCANSO" : exercises[blockMinute].name;
-    }
+    exName.textContent = ex.name;
+    reps.textContent = ex.reps;
+    exDesc.textContent = ex.desc;
+    nextEx.textContent = next.name;
 
-    video.muted = false;
+    video.src = ex.video;
     video.currentTime = 0;
-    video.play().catch(() => {});
+    video.play();
 }
 
-function tick() {
+function updateTimer(){
     seconds--;
-    timerEl.textContent = `00:${seconds < 10 ? "0" : ""}${seconds}`;
-
-    if (seconds <= 0) {
+    if(seconds < 0){
         minute++;
-        if (minute > 30) {
-            finish();
-            return;
-        }
         seconds = 60;
-        loadMinute();
+        loadExercise();
     }
+    timer.textContent = `00:${seconds.toString().padStart(2,"0")}`;
 }
 
-function start() {
-    if (running) return;
-    running = true;
-
-    loadMinute(); // ← play SOLO tras click
-    interval = setInterval(tick, 1000);
+function start(){
+    if(interval) return;
+    video.play();
+    interval = setInterval(updateTimer,1000);
 }
 
-function pause() {
+function pause(){
     clearInterval(interval);
-    running = false;
+    interval = null;
     video.pause();
 }
 
-function reset() {
+function reset(){
     pause();
-    minute = 1;
+    minute = 0;
     seconds = 60;
-    timerEl.textContent = "01:00";
-    exerciseEl.textContent = "Preparado";
-    nextEl.textContent = "-";
-    video.src = "";
+    timer.textContent="01:00";
+    loadExercise();
 }
 
-function finish() {
-    clearInterval(interval);
-    running = false;
-    exerciseEl.textContent = "ENTRENAMIENTO COMPLETADO 💪";
-    nextEl.textContent = "";
-    timerEl.textContent = "00:00";
-    video.pause();
+function skip(){
+    seconds = 0;
 }
+
+video.addEventListener("ended",()=> {
+    video.currentTime = 0;
+    video.play();
+});
+
+loadExercise();
 </script>
-
 </body>
 </html>
